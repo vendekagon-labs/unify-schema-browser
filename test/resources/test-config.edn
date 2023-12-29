@@ -1,10 +1,10 @@
 {:source :candel
- :pret-path "test/resources/pretense"
+ :unify-path "test/resources/pretense"
  ;; gets filled in with a temp dir
  ;; :output-path "resources/public/schema/{version}/" 
  :reference? true
  :main-color "moccasin"
  :reference-color "lightsteelblue"
- :dev? false
- }
+ :dev? false}
+
 

@@ -1,7 +1,7 @@
 (ns org.parkerici.alzabo.config
   (:require [clojure.edn :as edn]
-            [org.parkerici.multitool.core :as u])
-  )
+            [org.parkerici.multitool.core :as u]))
+
 
 (def the-config (atom nil))
 
@@ -18,7 +18,7 @@
 
 (defn config
   ([key] (get @the-config key))
-  ([] @the-config ))
+  ([] @the-config))
 
 ;;; TODO document or default config vars here
 

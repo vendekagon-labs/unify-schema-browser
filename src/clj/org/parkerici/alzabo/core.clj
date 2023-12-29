@@ -1,5 +1,5 @@
 (ns org.parkerici.alzabo.core
-  (:require [org.parkerici.alzabo.candel :as candel]
+  (:require [org.parkerici.alzabo.unify :as unify]
             [org.parkerici.alzabo.schema :as schema]
             [org.parkerici.alzabo.config :as config]
             [org.parkerici.alzabo.html :as html]
@@ -11,16 +11,19 @@
 ;;; Note: CLI use is somewhat deprecated; it's expected that Alzabo will be used
 ;;; more as a library.
 
+;; TODO: temp constant
+(def SCHEMA-DIR "unify/test/resources/systems/candel/template-dataset/schema")
+
 (defn- browse-file
   [file]
   (.browse (java.awt.Desktop/getDesktop)
            (.toURI (java.io.File. file))))
 
 (defn- schema
-  []
+  [schema-dir]
   (let [schema
         (if (= (config/config :source) :candel)
-          (candel/read-schema)
+          (unify/read-schema schema-dir)
           (schema/read-schema (config/config :source)))]
     (config/set! :version (:version schema))
     schema))
@@ -31,7 +34,7 @@
 
 (defmethod do-command :server
   [_ _]
-  (schema)                              ;sets version
+  (schema SCHEMA-DIR)
   (browse-file (config/output-path "index.html")))
 
 (defn write-alzabo
@@ -40,29 +43,29 @@
 
 (defmethod do-command :documentation
   [_ _] 
-  (let [schema (schema)]
-    (when (= (config/config :source) :candel)
+  (let [schema (schema SCHEMA-DIR)]
+    (when (= (config/config :source) :unify)
       ;; write out derived Alzabo schemas
       (write-alzabo schema))
     (html/schema->html schema)))
 
 (defmethod do-command :datomic
   [_ _]
-  (let [schema (schema)]
+  (let [schema (schema SCHEMA-DIR)]
     (write-alzabo schema)
     (output/write-schema (datomic/datomic-schema schema)
                          (config/output-path "datomic-schema.edn"))
-    (output/write-schema (candel/metamodel schema)
-                         (config/output-path "metamodel.edn"))
+    (output/write-schema (unify/metamodel schema)
+                         (config/output-path "metamodel.edn"))))
 
-    ))
+
 
 ;;; Split out for testing
 (defn -main-guts
   [config command]
   (config/set-config! config)
-  (do-command command {})
-  )
+  (do-command command {}))
+
   
 ;;; Note: this isn't currently used, all the params are in config
 (defn keywordize-keys
@@ -73,3 +76,6 @@
   [config command & args]
   (-main-guts config command)
   (System/exit 0))
+
+(comment
+  (-main-guts "resources/candel-config.edn" :documentation))

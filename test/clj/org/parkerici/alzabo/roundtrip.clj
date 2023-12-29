@@ -2,7 +2,7 @@
   (:require [clojure.data :as data]
             [clojure.pprint :refer [pprint]]
             [org.parkerici.alzabo.output :as output]
-            [org.parkerici.alzabo.candel :as candel]
+            [org.parkerici.alzabo.unify :as candel]
             [org.parkerici.alzabo.config :as config]
             [org.parkerici.alzabo.datomic :as datomic]
             [org.parkerici.multitool.core :as u]))
@@ -19,8 +19,8 @@
 
 (defn roundtrip-test []
   (let [candel-orig (concat
-                     (candel/read-edn (str (config/config :pret-path) "/resources/schema/schema.edn"))
-                     (candel/read-edn (str (config/config :pret-path) "/resources/schema/enums.edn")))
+                     (candel/read-edn (str (config/config :unify-path) "/resources/schema/schema.edn"))
+                     (candel/read-edn (str (config/config :unify-path) "/resources/schema/enums.edn")))
         
         alz (candel/read-schema nil)    ;use current checked out version
         _ (output/write-schema alz "roundtrip-alz.edn")
@@ -40,7 +40,7 @@
 
 #_
 (compare-schemas
- (candel/read-edn (str candel/pret-path "/resources/schema/schema.edn"))
+ (candel/read-edn (str candel/unify-path "/resources/schema/schema.edn"))
  (candel/read-edn "roundtrip-datomic.edn"))
 
 

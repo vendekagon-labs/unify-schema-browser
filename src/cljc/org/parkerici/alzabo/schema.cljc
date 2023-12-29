@@ -7,8 +7,8 @@
 
 (s/def ::type (s/or :key keyword?       ;TODO check that these are actual types (kinds or primitives)
                     :vec (s/coll-of ::type  :kind vector?) ;for heterogenous tuples
-                    :map (s/keys :req-un [*])              ;for homogenous tuples
-                    ))
+                    :map (s/keys :req-un [*])))              ;for homogenous tuples
+
 
 (s/def ::cardinality #{:one :many})
 (s/def ::doc string?)
