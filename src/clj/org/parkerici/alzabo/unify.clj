@@ -2,7 +2,6 @@
   (:require [clojure.set :as set]
             [clojure.edn :as edn]
             [clojure.java.io :as io]
-            [org.parkerici.alzabo.config :as config]
             [org.parkerici.alzabo.schema :as schema]
             [org.parkerici.multitool.core :as u]))
 
@@ -16,6 +15,15 @@
 
 (defn ns-ns->key [namespaced]
   (keyword (namespace namespaced)))
+
+
+(def special-case-enums
+  {[:clinical-observation :dfi-reason] :clinical-observation.event-reason
+   [:clinical-observation :pfs-reason] :clinical-observation.event-reason
+   [:clinical-observation :ttf-reason] :clinical-observation.event-reason
+   [:clinical-observation :os-reason] :clinical-observation.event-reason
+   [:measurement-matrix :measurement-type] :measurement/*
+   [:variant :feature-type] :variant.feature})
 
 
 (defn kind-fields
@@ -40,6 +48,8 @@
   (let [enum-name (keyword (str (name kind) "." (name field)))]
     (cond (get enums enum-name) enum-name
           (get enums field) field
+          (get special-case-enums [kind field])
+          (get special-case-enums [kind field])
           :else (do (println "No enum found:" {:unify.kind kind :field field})
                    :ref))))
 
@@ -72,6 +82,7 @@
       :attribute namespaced}]))
 
 
+
 (defn read-enums
   "Returns [enums version], where enums is a map of enum names (keyword) to list of possible values"
   [schema-dir]
@@ -84,8 +95,8 @@
 (defn read-schema
   [schema-dir]
   {:post [(schema/validate-schema %)]}
-  (let [schema-data (io/file schema-dir "schema.edn")
-        [entity-meta reference-meta] (io/file schema-dir "metamodel.edn")
+  (let [schema-data (read-edn (io/file schema-dir "schema.edn"))
+        [entity-meta reference-meta] (read-edn (io/file schema-dir "metamodel.edn"))
         field-index (field-index schema-data reference-meta)
         kinds (map :unify.kind/name entity-meta)
         kind-defs (map (fn [em]
@@ -110,7 +121,7 @@
     (u/clean-walk
      {:title "CANDEL"
       :version version
-      :unify.kinds kinds
+      :kinds kinds
       :enums enums})))
 
 (defn metamodel 

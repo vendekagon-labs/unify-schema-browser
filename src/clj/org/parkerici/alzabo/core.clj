@@ -8,11 +8,9 @@
             [org.parkerici.multitool.core :as u])
   (:gen-class))
 
-;;; Note: CLI use is somewhat deprecated; it's expected that Alzabo will be used
-;;; more as a library.
 
 ;; TODO: temp constant
-(def SCHEMA-DIR "unify/test/resources/systems/candel/template-dataset/schema")
+(def SCHEMA-DIR "../unify/test/resources/systems/candel/template-dataset/schema")
 
 (defn- browse-file
   [file]
@@ -21,10 +19,7 @@
 
 (defn- schema
   [schema-dir]
-  (let [schema
-        (if (= (config/config :source) :candel)
-          (unify/read-schema schema-dir)
-          (schema/read-schema (config/config :source)))]
+  (let [schema (unify/read-schema schema-dir)]
     (config/set! :version (:version schema))
     schema))
 
@@ -60,17 +55,11 @@
 
 
 
-;;; Split out for testing
 (defn -main-guts
   [config command]
   (config/set-config! config)
   (do-command command {}))
 
-  
-;;; Note: this isn't currently used, all the params are in config
-(defn keywordize-keys
-  [m]
-  (u/map-keys read-string m))
 
 (defn -main
   [config command & args]
@@ -78,4 +67,5 @@
   (System/exit 0))
 
 (comment
-  (-main-guts "resources/candel-config.edn" :documentation))
+  (-main-guts "resources/candel-config.edn" :documentation)
+  (-main-guts "resources/candel-config.edn" :server))
