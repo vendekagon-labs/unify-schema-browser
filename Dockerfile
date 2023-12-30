@@ -6,6 +6,5 @@ COPY test/resources/pretense/resources/schema/ /schema
 ENV UNIFY_SCHEMA_DIRECTORY="/schema/"
 WORKDIR /alzabo
 RUN lein deps
-EXPOSE 8899
 ENTRYPOINT lein run "resources/candel-config.edn" server
 
