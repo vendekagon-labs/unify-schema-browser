@@ -1,0 +1,3 @@
+#!/bin/bash
+docker build -t schema-browser .
+docker run -p 8899:8899 -t schema-browser
