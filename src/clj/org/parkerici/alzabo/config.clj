@@ -34,9 +34,11 @@
             template matches)))
 
 (defn output-path
-  [filename]
-  (str (expand-template-string (config :output-path) config)
-       filename))
+  ([]
+   (config :output-path))
+  ([filename]
+   (str (expand-template-string (config :output-path) config)
+        filename)))
 
 
 

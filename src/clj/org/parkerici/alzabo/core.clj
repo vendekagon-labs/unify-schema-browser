@@ -1,16 +1,17 @@
 (ns org.parkerici.alzabo.core
   (:require [org.parkerici.alzabo.unify :as unify]
-            [org.parkerici.alzabo.schema :as schema]
+            [org.parkerici.alzabo.service :refer [serve-static]]
             [org.parkerici.alzabo.config :as config]
             [org.parkerici.alzabo.html :as html]
             [org.parkerici.alzabo.output :as output]
-            [org.parkerici.alzabo.datomic :as datomic]
-            [org.parkerici.multitool.core :as u])
+            [org.parkerici.alzabo.datomic :as datomic])
   (:gen-class))
 
 
 ;; TODO: temp constant
-(def SCHEMA-DIR "../unify/test/resources/systems/candel/template-dataset/schema")
+(def SCHEMA-DIR
+  (or (System/getenv "UNIFY_SCHEMA_DIRECTORY")
+      "../unify/test/resources/systems/candel/template-dataset/schema"))
 
 (defn- browse-file
   [file]
@@ -27,10 +28,15 @@
 
 (defmulti do-command (fn [command args] (keyword command)))
 
-(defmethod do-command :server
+(defmethod do-command :browser
   [_ _]
   (schema SCHEMA-DIR)
   (browse-file (config/output-path "index.html")))
+
+(defmethod do-command :server
+  [_ _]
+  (schema SCHEMA-DIR)
+  (serve-static "/public/schema.1.3.1/index.html" {:dev true}))
 
 (defn write-alzabo
   [schema]
