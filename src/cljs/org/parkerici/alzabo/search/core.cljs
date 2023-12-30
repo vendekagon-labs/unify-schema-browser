@@ -2,12 +2,12 @@
   (:require [reagent.core :as reagent]
             [re-frame.core :as rf]
             [clojure.reader :as reader]
-            [org.parkerici.alzabo.search.lexicon :as lex]
-            ))
+            [org.parkerici.alzabo.search.lexicon :as lex]))
+
 
 ;; Get the schema from an invisible div on the page
 (defn get-schema []
-  (clojure.reader/read-string (.-textContent (.getElementById js/document "aschema"))))
+  (reader/read-string (.-textContent (.getElementById js/document "aschema"))))
 
 (rf/reg-event-db              ;; sets up initial application state
  :initialize                 ;; usage:  (dispatch [:initialize])
@@ -16,16 +16,16 @@
      {:user-string ""
       :schema schema
       :lexicon (lex/merged-dict schema)
-      :choices []
-      })))
+      :choices []})))
+
 
 (rf/reg-event-db
  :user-string-change
  (fn [db [_ user-string]]
    (assoc db
           :user-string user-string
-          :choices (lex/lookup user-string @(rf/subscribe [:lexicon]))
-          )))
+          :choices (lex/lookup user-string @(rf/subscribe [:lexicon])))))
+
 
 (rf/reg-sub
   :user-string
@@ -65,7 +65,7 @@
 
 (defn highlight-name
   [name typed]
-  (into [] (cons :span (re-substitute (re-pattern (str "(?i)\\b" typed)) name (fn [match] [:b match] )))))
+  (into [] (cons :span (re-substitute (re-pattern (str "(?i)\\b" typed)) name (fn [match] [:b match])))))
 
 ;;; Also used for enum links, so slightly misnamed
 (defn kind-link
@@ -93,11 +93,11 @@
     [:input {:value @(rf/subscribe [:user-string])
              :on-change (fn [e]
                           (rf/dispatch
-                           [:user-string-change (-> e .-target .-value)]))}]
+                           [:user-string-change (-> e .-target .-value)]))}]]
 
-    ]
+
    (let [user-string @(rf/subscribe [:user-string])
-         choices @(rf/subscribe [:choices]) ]
+         choices @(rf/subscribe [:choices])]
 
      [:div.popup
       [:div.popuptext {:style {:visibility (if (empty? choices) "hidden" "visible")}}
@@ -106,12 +106,12 @@
          [:table
           [:tbody
           ;; TODO sorting
-          (for [def choices]
-            ^{:key def}
-            [:tr
-             [:td (render-item def user-string)]])]])]])
-   ]
-  ) 
+           (for [def choices]
+             ^{:key def}
+             [:tr
+               [:td (render-item def user-string)]])]])]])])
+
+
 
 (defn ^:export run
   []
