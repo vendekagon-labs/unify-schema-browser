@@ -8,7 +8,6 @@
   (:gen-class))
 
 
-;; TODO: temp constant
 (def SCHEMA-DIR
   (or (System/getenv "UNIFY_SCHEMA_DIRECTORY")
       "../unify/test/resources/systems/candel/template-dataset/schema"))
@@ -36,7 +35,7 @@
 (defmethod do-command :server
   [_ _]
   (schema SCHEMA-DIR)
-  (serve-static "/public/schema.1.3.1/index.html" {:dev true}))
+  (serve-static "/public" {:dev false}))
 
 (defn write-alzabo
   [schema]
@@ -74,4 +73,5 @@
 
 (comment
   (-main-guts "resources/candel-config.edn" :documentation)
+  ;; this puts schema at: http://localhost:8899/schema/1.3.1/index.html
   (-main-guts "resources/candel-config.edn" :server))
