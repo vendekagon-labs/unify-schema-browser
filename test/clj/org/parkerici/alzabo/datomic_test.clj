@@ -1,8 +1,7 @@
 (ns org.parkerici.alzabo.datomic-test
   (:require [org.parkerici.alzabo.datomic :refer :all]
             [org.parkerici.alzabo.schema :as schema]
-            [clojure.test :refer :all]
-            ))
+            [clojure.test :refer :all]))
 
 ;;; Basic smoke test
 (deftest test-datomic-gen
@@ -20,8 +19,8 @@
            project-name))
     (testing "isComponent always set"
       (prn :row-files row-files)
-      (is (false? (:db/isComponent row-files)))
-      )))
+      (is (false? (:db/isComponent row-files))))))
+
 
 (deftest test-tuples
   (let [a-schema (schema/read-schema "test/resources/schema/gxp.edn")
@@ -38,7 +37,10 @@
                        :db/doc "A homogenous tuple-valued field"
                        :db/valueType :db.type/tuple
                        :db/tupleType :db.type/string
-                       :db/cardinality :db.cardinality/one
-                       })
-                d-schema))
-      )))
+                       :db/cardinality :db.cardinality/one})
+
+                d-schema)))))
+
+(comment
+  (run-tests *ns*))
+

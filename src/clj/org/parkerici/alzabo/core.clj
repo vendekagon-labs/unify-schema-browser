@@ -1,11 +1,13 @@
 (ns org.parkerici.alzabo.core
-  (:require [org.parkerici.alzabo.unify :as unify]
+  (:require [clojure.java.io :as io]
+            [org.parkerici.alzabo.unify :as unify]
             [org.parkerici.alzabo.service :refer [serve-static]]
             [org.parkerici.alzabo.config :as config]
             [org.parkerici.alzabo.html :as html]
             [org.parkerici.alzabo.output :as output]
             [org.parkerici.alzabo.datomic :as datomic])
-  (:gen-class))
+  (:gen-class)
+  (:import (java.awt Desktop)))
 
 
 (def SCHEMA-DIR
@@ -14,8 +16,8 @@
 
 (defn- browse-file
   [file]
-  (.browse (java.awt.Desktop/getDesktop)
-           (.toURI (java.io.File. file))))
+  (.browse (Desktop/getDesktop)
+           (.toURI (io/file file))))
 
 (defn- schema
   [schema-dir]
@@ -44,13 +46,22 @@
 
 (defn write-alzabo
   [schema]
-  (output/write-schema schema (config/output-path "alzabo-schema.edn"))) 
+  (output/write-schema schema (config/output-path "alzabo-schema.edn")))
+
+(defn read-alzabo
+  [schema-file]
+  (read-string (slurp schema-file)))
 
 (defmethod do-command :documentation
   [_ _] 
-  (let [schema (schema SCHEMA-DIR)]
+  (let [unify? (= (config/config :source) :unify)
+        schema (if unify?
+                 (schema SCHEMA-DIR)
+                 (read-alzabo (config/config :source)))]
+    ;; TODO: (BK 1/1/2024) this writes an alzabo schema, but afaict this is only ever
+    ;;       checked by tests and not used in cljs, etc? cljs path writes
+    ;;       its alzabo schema file separately to resources.
     (when (= (config/config :source) :unify)
-      ;; write out derived Alzabo schemas
       (write-alzabo schema))
     (html/schema->html schema)))
 
@@ -65,7 +76,7 @@
 
 
 
-(defn -main-guts
+(defn main*
   [config command]
   (config/set-config! config)
   (do-command command {}))
@@ -73,11 +84,12 @@
 
 (defn -main
   [config command & args]
-  (-main-guts config command)
+  (main* config command)
   (System/exit 0))
 
 (comment
-  (-main-guts "resources/candel-config.edn" :documentation)
+  (main* "resources/candel-config.edn" :documentation)
+  (main* "test/resources/rawsugar-config.edn" :documentation)
   ;; this puts schema at: http://localhost:8899/schema/1.3.1/index.html
-  (-main-guts "resources/candel-config.edn" :server)
-  (-main-guts "resources/candel-config.edn" :dev-server))
+  (main* "resources/candel-config.edn" :server)
+  (main* "resources/candel-config.edn" :dev-server))

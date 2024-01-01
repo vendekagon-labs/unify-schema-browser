@@ -1,4 +1,4 @@
-{:source :candel
+{:source :unify
  :unify-path "test/resources/pretense"
  :output-path "target/candel/{version}/" 
  :reference? true

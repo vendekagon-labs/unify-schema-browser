@@ -34,11 +34,11 @@
                ["schema.dot" ".svg"]
                ["schema.dot" ".cmapx"]
                ["alzabo" ".css"]
-               ["js" nil]
-               }
-             (set files)))
+               ["js" nil]}
+
+             (set files))))))
       ;; TODO file contents
-      )))
+
 
 (deftest test-tuples
   (let [schema (schema/read-schema "test/resources/schema/gxp.edn")]
@@ -47,3 +47,6 @@
       ;; Test that type link rendered properly
       (is (re-find (re-pattern "[<a href=\"gene.html\"> float]") experiment)))))
 
+
+(comment
+  (run-tests *ns*))
