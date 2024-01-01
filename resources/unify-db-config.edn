@@ -1,0 +1,7 @@
+{:source :unify-db
+ :db-uri "datomic:dev://localhost:4334/unify-example"
+ :output-path "resources/public/schema/{version}/"
+ :edge-labels? false
+ :reference? true
+ :main-color "lightsteelblue"
+ :reference-color "moccasin"}
