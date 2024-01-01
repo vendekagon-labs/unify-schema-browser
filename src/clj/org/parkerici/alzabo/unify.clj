@@ -3,6 +3,7 @@
             [clojure.edn :as edn]
             [clojure.java.io :as io]
             [org.parkerici.alzabo.schema :as schema]
+            [org.parkerici.alzabo.unify.query :as query]
             [org.parkerici.multitool.core :as u]))
 
 
@@ -75,7 +76,9 @@
                               (mapv ns->key (or (get info :unify.ref/tuple-types) ;metamodel-level types
                                                 (get info :db/tupleTypes)))
                               true
-                              (throw (ex-info "Couldn't determine tuple type" {:kind kind :field field})))
+                              (throw (ex-info (str "Couldn't determine tuple type for kind: " kind
+                                                   " and field " field)
+                                              {:kind kind :field field})))
                           
                         true
                         bare-type)]
@@ -113,6 +116,7 @@
         kind-defs (map (fn [ent-def]
                          {:parent     (:unify.kind/parent ent-def)
                           :unique-id  (u/dens (or (:unify.kind/need-uid ent-def)
+                                                  (:unify.kind/global-id ent-def)
                                                   (:unify.kind/context-id ent-def)))
                           :label      (u/dens (:unify.kind/context-id ent-def))
                           :reference? (:unify.kind/ref-data ent-def)})
@@ -146,6 +150,22 @@
         [entity-meta reference-meta] (read-edn (io/file schema-dir "metamodel.edn"))
         enums (read-enums schema-dir)]
     (schema->alzabo schema-data entity-meta reference-meta enums)))
+
+(defn db->unify-schema
+  []
+  {:post [(schema/validate-schema %)]}
+  (let [db (query/latest-db)
+        attrs (query/attrs db)
+        version-ent (query/version-info db)
+        enums (query/enums db)
+        entity-meta (query/kinds db)
+        reference-meta (query/refs db)
+        schema-data (concat [version-ent] attrs)]
+    (schema->alzabo schema-data entity-meta reference-meta enums)))
+
+(comment
+  :get-db->unify-schema-working
+  (db->unify-schema))
 
 (defn ->metamodel
   "Generate an Alzabo schema, produces a Unify metamodel."

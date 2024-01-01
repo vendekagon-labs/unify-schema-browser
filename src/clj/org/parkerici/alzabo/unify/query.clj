@@ -5,6 +5,7 @@
   (:require [clojure.string :as str]
             [datomic.api :as d]))
 
+
 (defn uri []
   (or (System/getenv "DATOMIC_URI")
       "datomic:dev://localhost:4334/unify-example"))
@@ -24,9 +25,18 @@
   example."
   [ent-map]
   (into {} (for [[k v] ent-map]
-             (if (and (map? v)
-                      (:db/ident v))
+             (cond
+               (and (map? v)
+                    (:db/ident v))
                [k (:db/ident v)]
+
+               (and (coll? v)
+                    (sequential? v)
+                    (every? map? v)
+                    (every? :db/ident v))
+               [k (mapv :db/ident v)]
+
+               :else
                [k v]))))
 
 (defn- db-ns?
@@ -43,7 +53,7 @@
   schema/name fields."
   [db]
   (d/pull db
-          '[:unify.schema/version :unify.schema/name]
+          '[:db/ident :unify.schema/version :unify.schema/name]
           :unify.schema/metadata))
 
 (defn attrs
@@ -55,6 +65,8 @@
                               {:db/valueType [:db/ident]}
                               {:db/cardinality [:db/ident]}
                               {:db/unique [:db/ident]}
+                              :db/tupleType
+                              :db/tupleTypes
                               :db/doc])
               :where
               [_ :db.install/attribute ?a]])
@@ -65,27 +77,35 @@
 (defn kinds
   "Returns all kinds defined by Unify conventions in the database."
   [db]
-  (d/q '[:find (pull ?k [:unify.kind/parent
-                         :unify.kind/global-id
-                         :unify.kind/context-id
-                         :unify.kind/name
-                         :unify.kind/allow-create-on-import
-                         :unify.kind/need-uid])
-         :where
-         [?k :unify.kind/name]]
-       db))
+  (->> db
+       (d/q '[:find (pull ?k [:unify.kind/parent
+                              :unify.kind/global-id
+                              :unify.kind/context-id
+                              :unify.kind/name
+                              :unify.kind/allow-create-on-import
+                              :unify.kind/need-uid])
+              :where
+              [?k :unify.kind/name]])
+       (map first)))
 
 (defn refs
   "Returns all reference annotations in the database, as defined per
   Unify conventions."
   [db]
-  (d/q '[:find (pull ?r [:db/ident
-                         :unify.ref/from
-                         :unify.ref/to
-                         :unify.ref/tuple-types])
-         :where
-         [?r :unify.ref/from]]
-       db))
+  (->> db
+       (d/q '[:find (pull ?r [:db/ident
+                              :unify.ref/from
+                              :unify.ref/to
+                              :unify.ref/tuple-types])
+              :where
+              [?r :unify.ref/from]])
+       ;; flatten nested tuple from query results
+       (map first)
+       ;; turn refs into form that appears in schema file
+       (map (fn [ent-map]
+              (-> ent-map
+                  (assoc :db/id (:db/ident ent-map))
+                  (dissoc :db/ident))))))
 
 (defn enums
   "Returns all enums in the database, using the heuristic that entities
@@ -111,5 +131,8 @@
 
   (first (attrs db))
   (first (refs db))
+  (refs db)
   (first (kinds db))
+
+  (map :unify.kind/name (kinds db))
   (enums db))
