@@ -90,23 +90,25 @@
       :doc (get info :db/doc)
       :attribute namespaced}]))
 
-
+(defn process-enums
+  [enum-data]
+  (->> enum-data
+       (map :db/ident)
+       (group-by (comp keyword namespace))
+       (u/map-values (fn [values] {:values (zipmap values (map name values))}))))
 
 (defn read-enums
   "Returns [enums version], where enums is a map of enum names (keyword) to list of possible values"
   [schema-dir]
-  (->> (io/file schema-dir "enums.edn")
-       (read-edn)
-       (map :db/ident)
-       (group-by (comp keyword namespace))
-       (u/map-values (fn [values] {:values (zipmap values (map name values))}))))
+  (read-edn (io/file schema-dir "enums.edn")))
 
 
 (defn schema->alzabo
   "Given Unify schema and metamodel contents as edn, generates an Alzabo schema
   representing the same description of entity kinds and refs."
-  [schema-data entity-meta reference-meta enums]
+  [schema-data entity-meta reference-meta enums*]
   (let [field-index (field-index schema-data reference-meta)
+        enums (process-enums enums*)
         version (first (keep :unify.schema/version schema-data))
         title (->> schema-data
                    (keep :unify.schema/name)
