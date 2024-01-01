@@ -36,6 +36,8 @@
   (filter #(= kind (:unify.ref/from %)) reference-meta))
 
 (defn field-index
+  "Creates an index of attribute name -> combined attribute and reference
+  metadata."
   [basic-atts reference-meta]
   (let [basic-index (zipmap (map :db/ident basic-atts)
                             basic-atts)
@@ -44,6 +46,9 @@
     (u/merge-recursive basic-index meta-index)))
 
 (defn lookup-enum
+  "Given a kind and field definition as per Datomic + Unify, finds the
+  corresponding enums. Uses namespaced naming conventions in addition to
+  a special case mapping for problem enums."
   [kind field enums]
   (let [enum-name (keyword (str (name kind) "." (name field)))]
     (cond (get enums enum-name) enum-name
@@ -53,8 +58,9 @@
           :else (do (println "No enum found:" {:unify.kind kind :field field})
                    :ref))))
 
-;;; This does most of the work of translating between datomic and alzabo formats
 (defn annotated-field
+  "Given a Unify kind definition and Datomic attribute definition fields,
+  produces a map of Alzabo field annotations."
   [kind field field-index enums]
   (let [namespaced (keyword (name kind) (name field))
         info (get field-index namespaced)
@@ -92,41 +98,59 @@
        (group-by (comp keyword namespace))
        (u/map-values (fn [values] {:values (zipmap values (map name values))}))))
 
-(defn read-schema
+
+(defn schema->alzabo
+  "Given Unify schema and metamodel contents as edn, generates an Alzabo schema
+  representing the same description of entity kinds and refs."
+  [schema-data entity-meta reference-meta enums]
+  (let [field-index (field-index schema-data reference-meta)
+        version (first (keep :unify.schema/version schema-data))
+        title (->> schema-data
+                   (keep :unify.schema/name)
+                   (first)
+                   (name))
+        kinds* (map :unify.kind/name entity-meta)
+        kind-defs (map (fn [ent-def]
+                         {:parent     (:unify.kind/parent ent-def)
+                          :unique-id  (u/dens (or (:unify.kind/need-uid ent-def)
+                                                  (:unify.kind/context-id ent-def)))
+                          :label      (u/dens (:unify.kind/context-id ent-def))
+                          :reference? (:unify.kind/ref-data ent-def)})
+                       entity-meta)
+        kinds (into {}
+                (map (fn [kind kind-def]
+                       (let [basic-att-fields (map #(ns->key (:db/ident %))
+                                                   (kind-fields kind schema-data))
+                             ref-fields (map (comp ns->key :db/id)
+                                             (kind-refs kind reference-meta))
+                             all-fields (set/union (set basic-att-fields)
+                                                   (set ref-fields))
+                             annotated-fields (into {}
+                                                    (map #(annotated-field kind % field-index enums)
+                                                         all-fields))]
+                         [kind (assoc kind-def :fields annotated-fields)]))
+                     kinds* kind-defs))]
+    (u/clean-walk
+      {:title title
+       :version version
+       :kinds kinds
+       :enums enums})))
+
+(defn parse-schema-files
+  "Given a Unify schema directory, parses the schema, metamodel, and enum file contents
+  and produces an Alzabo schema, which the browser uses to render the hyperlinked schema
+  content and entity graph."
   [schema-dir]
   {:post [(schema/validate-schema %)]}
   (let [schema-data (read-edn (io/file schema-dir "schema.edn"))
         [entity-meta reference-meta] (read-edn (io/file schema-dir "metamodel.edn"))
-        field-index (field-index schema-data reference-meta)
-        kinds (map :unify.kind/name entity-meta)
-        kind-defs (map (fn [em]
-                         {:parent     (:unify.kind/parent em)
-                          :unique-id  (u/dens (or (:unify.kind/need-uid em) (:unify.kind/context-id em)))
-                          :label      (u/dens (:unify.kind/context-id em))
-                          :reference? (:unify.kind/ref-data em)})
-                       entity-meta)
-        enums (read-enums schema-dir)
-        version (first (keep :unify.schema/version schema-data))
+        enums (read-enums schema-dir)]
+    (schema->alzabo schema-data entity-meta reference-meta enums)))
 
-        kinds
-        (into {}
-              (map (fn [kind kind-def]
-                     (let [basic-att-fields (map #(ns->key (:db/ident %))
-                                                 (kind-fields kind schema-data))
-                           ref-fields (map (comp ns->key :db/id) (kind-refs kind reference-meta))
-                           all-fields (set/union (set basic-att-fields) (set ref-fields))
-                           annotated-fields (into {} (map #(annotated-field kind % field-index enums) all-fields))]
-                       [kind (assoc kind-def :fields annotated-fields)]))
-                   kinds kind-defs))]
-    (u/clean-walk
-     {:title "CANDEL"
-      :version version
-      :kinds kinds
-      :enums enums})))
-
-(defn metamodel 
-  "Generate a Unify metamodel from an Alzabo schema"
+(defn ->metamodel
+  "Generate an Alzabo schema, produces a Unify metamodel."
   [{:keys [kinds enums] :as schema} & [{:keys [enum-doc?] :or {enum-doc? true}}]]
+  ;; TODO: (1/1/2024 BK) figure out if Unify needs a generic version of this
   (let [metamodel-fixed (read-edn "resources/candel/metamodel-fixed.edn")
         entity-metadata
         (for [[kind {:keys [unique-id parent label]}] kinds]

@@ -19,7 +19,7 @@
 
 (defn- schema
   [schema-dir]
-  (let [schema (unify/read-schema schema-dir)]
+  (let [schema (unify/parse-schema-files schema-dir)]
     (config/set! :version (:version schema))
     schema))
 
@@ -36,6 +36,11 @@
   [_ _]
   (schema SCHEMA-DIR)
   (serve-static "/public" {:dev false}))
+
+(defmethod do-command :dev-server
+  [_ _]
+  (schema SCHEMA-DIR)
+  (serve-static "/public" {:dev true}))
 
 (defn write-alzabo
   [schema]
@@ -55,7 +60,7 @@
     (write-alzabo schema)
     (output/write-schema (datomic/datomic-schema schema)
                          (config/output-path "datomic-schema.edn"))
-    (output/write-schema (unify/metamodel schema)
+    (output/write-schema (unify/->metamodel schema)
                          (config/output-path "metamodel.edn"))))
 
 
@@ -74,4 +79,5 @@
 (comment
   (-main-guts "resources/candel-config.edn" :documentation)
   ;; this puts schema at: http://localhost:8899/schema/1.3.1/index.html
-  (-main-guts "resources/candel-config.edn" :server))
+  (-main-guts "resources/candel-config.edn" :server)
+  (-main-guts "resources/candel-config.edn" :dev-server))

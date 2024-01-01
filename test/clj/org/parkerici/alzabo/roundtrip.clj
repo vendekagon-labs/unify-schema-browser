@@ -22,7 +22,7 @@
                      (candel/read-edn (str (config/config :unify-path) "/resources/schema/schema.edn"))
                      (candel/read-edn (str (config/config :unify-path) "/resources/schema/enums.edn")))
         
-        alz (candel/read-schema nil)    ;use current checked out version
+        alz (candel/parse-schema-files nil)    ;use current checked out version
         _ (output/write-schema alz "roundtrip-alz.edn")
         recreated (datomic/datomic-schema alz {:enum-doc? false})
         printer (fn [name contents]
