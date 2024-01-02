@@ -7,8 +7,8 @@
                  [org.postgresql/postgresql "42.7.1"]
                  [org.slf4j/slf4j-simple "1.7.30"]
                  [hiccup "1.0.5"]
-                 [io.pedestal/pedestal.service "0.5.7"]
-                 [io.pedestal/pedestal.jetty "0.5.7"]
+                 [io.pedestal/pedestal.service "0.6.2"]
+                 [io.pedestal/pedestal.jetty "0.6.2"]
                  [me.raynes/fs "1.4.6"]
                  ;; Clojurescript
                  [org.clojure/clojurescript "1.10.520"]
