@@ -1,3 +1,4 @@
 #!/bin/bash
+set -e
 docker build -t schema-browser .
 docker run --add-host=host.docker.internal:host-gateway schema-browser

@@ -1,4 +1,5 @@
 FROM clojure:lein
+RUN apt-get update && apt-get install --yes graphviz
 COPY src/ /alzabo/src/
 COPY resources/ /alzabo/resources/
 COPY project.clj /alzabo/
