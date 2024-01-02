@@ -4,6 +4,7 @@
   :dependencies [;; Clojure
                  [org.clojure/clojure "1.11.1"]
                  [com.datomic/peer "1.0.7075"]
+                 [org.postgresql/postgresql "42.7.1"]
                  [org.slf4j/slf4j-simple "1.7.30"]
                  [hiccup "1.0.5"]
                  [io.pedestal/pedestal.service "0.5.7"]
@@ -62,5 +63,3 @@
   :figwheel {:server-port 3452
              :nrepl-port 7888}
   :resource-paths ["resources" "target/cljsbuild"])
-
-
