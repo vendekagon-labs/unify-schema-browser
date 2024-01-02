@@ -3,8 +3,9 @@
             [io.pedestal.http.route :as route]))
 
 (defn service-port []
-  (or (System/getenv "SERVICE_PORT")
-      8899))
+  (if-let [port-str (System/getenv "SERVICE_PORT")]
+    (Integer/parseInt port-str)
+    8899))
 
 (defn health [_request]
   {:status 200 :body "ok"})
