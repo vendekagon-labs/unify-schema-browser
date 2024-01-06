@@ -16,10 +16,11 @@
        :route-name :health-check]}))
 
 (defn serve-static
-  [resource-path {:keys [dev] :as _opts}]
+  [resource-path {:keys [dev host] :as _opts}]
   (-> (http/create-server
        {::http/routes routes
         ::http/type   :jetty
+        ::http/host   (or host "0.0.0.0")
         ::http/port   (service-port)
         ::http/join?  (not dev)
         ::http/resource-path  resource-path

@@ -78,7 +78,8 @@
 (defmethod do-command :dev-server
   [_ _]
   (schema->html)
-  (serve-static "/public" {:dev true}))
+  (serve-static "/public" {:dev true
+                           :host "localhost"}))
 
 (defmethod do-command :datomic
   [_ _]
