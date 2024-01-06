@@ -16,13 +16,12 @@
   [att value]
   (swap! the-config assoc att value))
 
-(defn config
+(defn config*
   ([key] (get @the-config key))
   ([] @the-config))
 
-;;; TODO document or default config vars here
+(def ^:dynamic config config*)
 
-;;; → multitool – change to deal with keyword bindings
 (defn expand-template-string
   "Template is a string containing {foo} elements, which get replaced by corresponding values from bindings"
   [template bindings]

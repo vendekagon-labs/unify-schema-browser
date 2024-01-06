@@ -154,20 +154,15 @@
     (schema->alzabo schema-data entity-meta reference-meta enums)))
 
 (defn db->unify-schema
-  []
+  [db]
   {:post [(schema/validate-schema %)]}
-  (let [db (query/latest-db)
-        attrs (query/attrs db)
+  (let [attrs (query/attrs db)
         version-ent (query/version-info db)
         enums (query/enums db)
         entity-meta (query/kinds db)
         reference-meta (query/refs db)
         schema-data (concat [version-ent] attrs)]
     (schema->alzabo schema-data entity-meta reference-meta enums)))
-
-(comment
-  :get-db->unify-schema-working
-  (db->unify-schema))
 
 (defn ->metamodel
   "Generate an Alzabo schema, produces a Unify metamodel."

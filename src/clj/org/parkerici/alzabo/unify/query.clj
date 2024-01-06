@@ -5,16 +5,30 @@
   (:require [clojure.string :as str]
             [datomic.api :as d]))
 
+(defn db-uri
+  []
+  (or (System/getenv "BASE_DATOMIC_URI")
+      (throw (ex-info "Must set BASE_URI!"
+                      {:config/cause "set BASE_DATOMIC_URI to datomic storage service."}))))
 
-(defn uri []
-  (or (System/getenv "DATOMIC_URI")
-      "datomic:dev://localhost:4334/unify-example"))
+(defn db-name->uri
+  "Uses `BASE_DATOMIC_URI` from config/env and passed `db-name` to
+  construct a connection string. _Note_: not all conn protocols are
+  handled, only ddb, dev, and sql have been tested."
+  [db-name]
+  (let [base-uri (db-uri)
+        protocol (second (str/split base-uri #"\:"))]
+    (if (= "sql" protocol)
+      (str (subs base-uri 0 14)
+           db-name
+           (subs base-uri 14))
+      (str base-uri db-name))))
 
 (defn latest-db
   "Get the latest version of the database the alzabo cli or service is
   pointed at (see `uri` in this namespace)."
-  []
-  (-> (uri)
+  [db-name]
+  (-> (db-name->uri db-name)
       (d/connect)
       (d/db)))
 
@@ -82,6 +96,7 @@
                               :unify.kind/global-id
                               :unify.kind/context-id
                               :unify.kind/name
+                              :unify.kind/ref-data
                               :unify.kind/allow-create-on-import
                               :unify.kind/need-uid])
               :where
@@ -124,15 +139,10 @@
                  {:db/ident ident})))
        (remove #(db-ns? (:db/ident %)))))
 
+(defn list-dbs []
+  (let [placeholder-uri (db-name->uri "*")]
+    (vec (d/get-database-names placeholder-uri))))
+
 
 (comment
-  :repl-tests
-  (def db (latest-db))
-
-  (first (attrs db))
-  (first (refs db))
-  (refs db)
-  (first (kinds db))
-
-  (map :unify.kind/name (kinds db))
-  (enums db))
+  (list-dbs))

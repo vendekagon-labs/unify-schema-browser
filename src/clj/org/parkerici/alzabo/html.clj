@@ -214,6 +214,7 @@
 ;;; TODO if this gets any more complex, consider replacing with https://github.com/daveray/dorothy
 (defn- write-graphviz
   [{:keys [kinds enums] :as schema} dot-file]
+  (prn (filter :reference? kinds))
   (let [clean (fn [kind] (s/replace (name kind) \- \_))
         attributes (fn [m & [sep]]
                      ;; For some reason graph attributes need a different separator
@@ -233,7 +234,10 @@
                                         :label     (name kind)
                                         :style     "filled"
                                         :fillcolor (if (get-in kinds [kind :reference?])
-                                                     (config/config :reference-color)
+                                                     (do (config/config :reference-color)
+                                                         (.println *err* (str (config/config :reference?)
+                                                                              (config/config :reference-color)))
+                                                         (config/config :reference-color))
                                                      (config/config :main-color))
                                         :fontname  graph-font})))
           (doseq [[label ref cardinality] (kind-relations kind schema)]
@@ -270,6 +274,7 @@
 (defn schema->html
   "Generate HTML docs for a schema, including .svg and related files. Arguments are self-explanatory."
   [{:keys [kinds enums version title] :as schema}]
+  (println (config/output-path))
 
   (clear-directory (output-file ""))
   ;; Write out the schema itself – used by autocomplete, enflame, etc

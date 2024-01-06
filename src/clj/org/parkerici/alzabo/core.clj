@@ -2,6 +2,7 @@
   (:require [clojure.java.io :as io]
             [clojure.edn :as edn]
             [org.parkerici.alzabo.unify :as unify]
+            [org.parkerici.alzabo.unify.query :as query]
             [org.parkerici.alzabo.service :refer [serve-static]]
             [org.parkerici.alzabo.config :as config]
             [org.parkerici.alzabo.html :as html]
@@ -27,8 +28,9 @@
     schema))
 
 (defn- db->schema
-  []
-  (let [schema (unify/db->unify-schema)]
+  [db-name]
+  (let [db (query/latest-db db-name)
+        schema (unify/db->unify-schema db)]
     (config/set! :version (:version schema))
     schema))
 
@@ -47,15 +49,13 @@
   []
   (let [schema-source (config/config :source)
         unify? (= :unify schema-source)
-        unify-db? (= :unify-db schema-source)
-        schema (cond
-                 unify? (dir->schema)
-                 unify-db? (db->schema)
-                 :else (read-alzabo schema-source))]
+        schema (if unify?
+                 (dir->schema)
+                 (read-alzabo schema-source))]
     ;; TODO: (BK 1/1/2024) this writes an alzabo schema, but afaict this is only ever
     ;;       checked by tests and not used in cljs, etc? cljs path writes
     ;;       its alzabo schema file separately to resources.
-    (when (#{:unify :unify-db} schema-source)
+    (when (#{:unify} schema-source)
       (write-alzabo schema))
     (html/schema->html schema)))
 
@@ -73,13 +73,13 @@
 (defmethod do-command :server
   [_ _]
   (schema->html)
-  (serve-static "/public" {:dev false}))
+  (serve-static {:dev false}))
 
 (defmethod do-command :dev-server
   [_ _]
   (schema->html)
-  (serve-static "/public" {:dev true
-                           :host "localhost"}))
+  (serve-static {:dev true
+                 :host "localhost"}))
 
 (defmethod do-command :datomic
   [_ _]
@@ -105,6 +105,7 @@
   (System/exit 0))
 
 (comment
+  (serve-static {:dev true :host "localhost" :port 8999})
   (main* "resources/candel-config.edn" :documentation)
   (main* "test/resources/rawsugar-config.edn" :documentation)
   (main* "resources/unify-db-config.edn" :documentation)
