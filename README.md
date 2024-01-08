@@ -1,4 +1,15 @@
-# alzabo
+# Unify Schema Browser
+
+This is a browser based schema documentarion and graph for Datomic schema. It's
+derived from the [Alzabo code base](https://github.com/CANDELbio/alzabo) from
+CANDELBio and is now included in the
+[Unify](https://github.com/vendekagon-labs/unify)
+local system.
+
+The schema browser requires Unify metamodel schema annotations to construct a
+graph of schema relations.
+
+# Browser internals: alzabo
 
 Alzabo does a number of different tasks centered around a simple schema format for graph databases.
 
@@ -45,56 +56,15 @@ To generate documentation, you need graphviz installed. On the Mac, you can do t
 
 ## Usage
 
-### Generate and view CANDEL schema
+Current supported usage executes in the browser and provides a small service API
+layer. Use of the schema browser in Unify is wrapped via container ops and util
+script wrappers.
 
-Prerequisites:
-- [leiningen](https://leiningen.org/)
-- [Pret](https://github.com/CANDELbio/pret) installed as a sibling to Alzabo (TODO update to point to opensource version)
+# License
 
-    $ lein launch
+Additions in this repo from 2024 on:
 
-Will compile the CANDEL schema to static files, compile the clojurescript code for autocomplete, and open the schema web page. 
+Apache 2.0, Copyright Vendekagon Labs, LLC
 
-Or, to use a locally (but possibly out of date) version of the schema:
-
-    lein run test/resources/test-config.edn datomic
-    lein run test/resources/test-config.edn documentation
-    lein run test/resources/test-config.edn server 
-
-## Commands
-
-You can run these commands with `lein run <config> <cmd>`. 
-
-	$ lein run documentation 
-	
-Generates documentation from the given Alzabo schema file. 
-
-	$ lein run datomic 
-	
-Generates a Datomic schema from the given Alzabo schema file. 
-
-	$ lein run server
-
-Opens the generated documentation in browser..
-
-## Use as a library
-
-Add dependency `[org.parkerici/alzabo "1.0.0"]` (or whatever the lastest version is)
-
-### Example
-
-    (ns ...
-	  (:require [org.parkerici.alzabo.schema :as schema]
-                [org.parkerici.alzabo.datomic :as datomic]
-				[org.parkerici.alzabo.html :as html]))
-
-	;; read in a schema file
-	(let [schema (schema/read-schema <schema.edn>)]
-
-	  ;; write out a Datomic schema
-      (datomic/write-schema schema "datomic-schema.edn")
-	
-      ;; generate documentation 
-      (html/schema->html schema "public/schema" {}))
-
-
+Original: Apache 2.0, Alzabo is the work of Mike Travers,
+copyright Parker Institute for Cancer Immunotherapy
