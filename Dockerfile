@@ -8,5 +8,5 @@ WORKDIR /alzabo
 RUN lein deps
 
 ENV DATOMIC_URI="datomic:dev://host.docker.internal:4334/unify-example"
-ENTRYPOINT lein run "resources/unify-db-config.edn" server
+ENTRYPOINT lein run
 

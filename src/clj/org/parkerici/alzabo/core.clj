@@ -100,9 +100,8 @@
 
 
 (defn -main
-  [config command & args]
-  (main* config command)
-  (System/exit 0))
+  [& args]
+  (serve-static {:host "0.0.0.0"}))
 
 (comment
   (serve-static {:dev true :host "localhost" :port 8999})
