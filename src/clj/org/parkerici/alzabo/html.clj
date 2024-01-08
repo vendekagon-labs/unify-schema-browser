@@ -214,7 +214,6 @@
 ;;; TODO if this gets any more complex, consider replacing with https://github.com/daveray/dorothy
 (defn- write-graphviz
   [{:keys [kinds enums] :as schema} dot-file]
-  (prn (filter :reference? kinds))
   (let [clean (fn [kind] (s/replace (name kind) \- \_))
         attributes (fn [m & [sep]]
                      ;; For some reason graph attributes need a different separator
@@ -235,8 +234,6 @@
                                         :style     "filled"
                                         :fillcolor (if (get-in kinds [kind :reference?])
                                                      (do (config/config :reference-color)
-                                                         (.println *err* (str (config/config :reference?)
-                                                                              (config/config :reference-color)))
                                                          (config/config :reference-color))
                                                      (config/config :main-color))
                                         :fontname  graph-font})))
