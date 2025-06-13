@@ -101,7 +101,8 @@
 
 (defn -main
   [& args]
-  (serve-static {:host "0.0.0.0"}))
+  (serve-static {:host "0.0.0.0"
+                 :port 8999}))
 
 (comment
   (serve-static {:dev true :host "localhost" :port 8999})
