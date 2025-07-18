@@ -1,7 +1,7 @@
 (ns org.parkerici.alzabo.datomic
-  (:require [org.parkerici.multitool.core :as u]
-            [org.parkerici.alzabo.schema :as alzs]
-            ))
+  (:require [org.parkerici.vendored.multitool :as u]
+            [org.parkerici.alzabo.schema :as alzs]))
+
 
 ;;; Write out a Datomic schema from Alzabo schema
 
@@ -39,8 +39,8 @@
                         :db/tupleTypes (when (vector? type)
                                          (mapv az-type->datomic-type type))
                         :db/tupleType (when (map? type)
-                                        (az-type->datomic-type (get type ':*)))
-                        }))
+                                        (az-type->datomic-type (get type ':*)))}))
+
                    (:fields class-def)))
             kinds)
     ;; Note enum-type is thrown on the floor; no real place to put it
@@ -48,12 +48,12 @@
               (map (fn [[enum doc]]
                      (u/clean-map
                       {:db/ident enum
-                       :db/doc (and enum-doc? doc)
-                       }))
+                       :db/doc (and enum-doc? doc)}))
+
                    values))
             enums))
-   nil?
-   ))
+   nil?))
+
 
 
 

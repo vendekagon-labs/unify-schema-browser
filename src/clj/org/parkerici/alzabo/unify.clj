@@ -4,7 +4,7 @@
             [clojure.java.io :as io]
             [org.parkerici.alzabo.schema :as schema]
             [org.parkerici.alzabo.unify.query :as query]
-            [org.parkerici.multitool.core :as u]))
+            [org.parkerici.vendored.multitool :as u]))
 
 
 (defn read-edn [file]

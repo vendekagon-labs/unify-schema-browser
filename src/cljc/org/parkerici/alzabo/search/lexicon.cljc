@@ -1,6 +1,10 @@
 (ns org.parkerici.alzabo.search.lexicon
-  (:require [clojure.string :as str]
-            [org.parkerici.multitool.nlp :as nlp]))
+  (:require [clojure.string :as str]))
+
+(defn tokens
+  [s]
+  (map str/lower-case
+       (re-seq #"[\p{L}'\d]+" s)))
   
 (defn add-def-word [dict word def]
   (let [word (str/lower-case word)]
@@ -16,7 +20,7 @@
   (reduce (fn [dict word]
             (add-def-word dict word def))
           dict
-          (nlp/tokens text)))
+          (tokens text)))
 
 (defn kind-dict [kinds dict]
   (reduce (fn [dict [kindname kinddef]]

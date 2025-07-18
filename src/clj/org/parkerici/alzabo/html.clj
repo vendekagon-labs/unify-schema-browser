@@ -1,7 +1,7 @@
 (ns org.parkerici.alzabo.html
   (:require [org.parkerici.alzabo.schema :as schema]
             [org.parkerici.alzabo.config :as config]
-            [org.parkerici.multitool.core :as u]
+            [org.parkerici.vendored.multitool :as u]
             [clojure.string :as s]
             [clojure.pprint :as pp]
             [me.raynes.fs :as fs]

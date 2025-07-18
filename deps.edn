@@ -12,7 +12,6 @@
   io.pedestal/pedestal.jetty {:mvn/version "0.6.2"}
   me.raynes/fs {:mvn/version "1.4.6"}
   org.clojure/clojurescript {:mvn/version "1.10.520"}
-  org.parkerici/multitool {:mvn/version "0.0.15"}
   reagent/reagent {:mvn/version "0.8.1"}
   re-frame/re-frame {:mvn/version "0.10.6"}}
 

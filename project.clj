@@ -14,7 +14,6 @@
                  [me.raynes/fs "1.4.6"]
                  ;; Clojurescript
                  [org.clojure/clojurescript "1.10.520"]
-                 [org.parkerici/multitool "0.0.15"]
                  [reagent  "0.8.1"]
                  [re-frame "0.10.6"]]
   :plugins [[lein-cljsbuild "1.1.7"]
