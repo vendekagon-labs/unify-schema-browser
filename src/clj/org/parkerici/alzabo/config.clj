@@ -6,7 +6,7 @@
 (def the-config (atom nil))
 
 (defn set-config!
-  [config]                              ;filename or map
+  [config]                                                  ;filename or map
   (let [config (if (string? config)
                  (edn/read-string (slurp config))
                  config)]

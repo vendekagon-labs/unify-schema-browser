@@ -1,13 +1,13 @@
 (ns org.parkerici.alzabo.core
-  (:require [clojure.java.io :as io]
-            [clojure.edn :as edn]
-            [org.parkerici.alzabo.unify :as unify]
-            [org.parkerici.alzabo.unify.query :as query]
-            [org.parkerici.alzabo.service :refer [serve-static]]
+  (:require [clojure.edn :as edn]
+            [clojure.java.io :as io]
             [org.parkerici.alzabo.config :as config]
+            [org.parkerici.alzabo.datomic :as datomic]
             [org.parkerici.alzabo.html :as html]
             [org.parkerici.alzabo.output :as output]
-            [org.parkerici.alzabo.datomic :as datomic])
+            [org.parkerici.alzabo.service :refer [serve-static]]
+            [org.parkerici.alzabo.unify :as unify]
+            [org.parkerici.alzabo.unify.query :as query])
   (:gen-class)
   (:import (java.awt Desktop)))
 
@@ -78,7 +78,7 @@
 (defmethod do-command :dev-server
   [_ _]
   (schema->html)
-  (serve-static {:dev true
+  (serve-static {:dev  true
                  :host "localhost"}))
 
 (defmethod do-command :datomic

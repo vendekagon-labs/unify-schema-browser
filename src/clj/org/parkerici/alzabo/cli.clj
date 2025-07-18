@@ -1,12 +1,11 @@
 (ns org.parkerici.alzabo.cli
   (:require [clojure.string :as str]
-            [clojure.tools.cli :refer [parse-opts]]
             [datomic.api :as d]
             [org.parkerici.alzabo.config :as config]
+            [org.parkerici.alzabo.html :as html]
             [org.parkerici.alzabo.unify :as unify]
-            [org.parkerici.alzabo.unify.schema-directory :as unify-schema]
             [org.parkerici.alzabo.unify.query :as query]
-            [org.parkerici.alzabo.html :as html])
+            [org.parkerici.alzabo.unify.schema-directory :as unify-schema])
   (:gen-class))
 
 
@@ -18,14 +17,14 @@
                   (str output-dir "/")
                   output-dir)
         schema-name (-> version-info :unify.schema/name name)]
-    {:source :unify-db
-     :db-uri db-uri
-     :output-path (str out-dir schema-name "/" version "/")
-     :edge-labels? false
-     :reference? true
-     :name schema-name
-     :version version
-     :main-color "lightsteelblue"
+    {:source          :unify-db
+     :db-uri          db-uri
+     :output-path     (str out-dir schema-name "/" version "/")
+     :edge-labels?    false
+     :reference?      true
+     :name            schema-name
+     :version         version
+     :main-color      "lightsteelblue"
      :reference-color "moccasin"}))
 
 (defn render-from-db-uri [db-uri output-dir]

@@ -62,7 +62,7 @@
   "Template is a string containing {{foo}} elements, which get replaced by corresponding values from bindings.
   See tests for examples.  {{foo.bar}} works for nested maps"
   [template bindings & {:keys [param-regex key-fn allow-missing?]
-                        :or {param-regex default-param-regex key-fn treeword}}]
+                        :or   {param-regex default-param-regex key-fn treeword}}]
   (let [params (->> (re-seq param-regex template)
                     (map (fn [[match key]]
                            [match (or ((key-fn key) bindings)

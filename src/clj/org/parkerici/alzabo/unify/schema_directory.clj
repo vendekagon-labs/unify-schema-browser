@@ -1,7 +1,7 @@
 (ns org.parkerici.alzabo.unify.schema-directory
-  (:require [clojure.java.io :as io]
-            [datomic.api :as d]
-            [clojure.edn :as edn]))
+  (:require [clojure.edn :as edn]
+            [clojure.java.io :as io]
+            [datomic.api :as d]))
 
 (defn read-edn-file
   "Reads EDN file, or throws ex-info with info on why EDN file can't be read."
