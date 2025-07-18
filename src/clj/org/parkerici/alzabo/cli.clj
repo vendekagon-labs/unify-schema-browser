@@ -9,13 +9,16 @@
 
 
 (defn build-config-map
-  [db db-uri]
+  [db db-uri output-dir]
   (let [version-info (query/version-info db)
         version (:unify.schema/version version-info)
+        out-dir (if-not (str/ends-with? output-dir "/")
+                  (str output-dir "/")
+                  output-dir)
         schema-name (-> version-info :unify.schema/name name)]
     {:source :unify-db
      :db-uri db-uri
-     :output-path (str "resources/public/" schema-name "/" version "/")
+     :output-path (str out-dir schema-name "/" version "/")
      :edge-labels? false
      :reference? true
      :name schema-name
@@ -23,17 +26,20 @@
      :main-color "lightsteelblue"
      :reference-color "moccasin"}))
 
-(defn render-from-db-uri [db-uri]
+(defn render-from-db-uri [db-uri output-dir]
   (let [conn (d/connect db-uri)
         db (d/db conn)
-        config-map (build-config-map db db-uri)]
+        config-map (build-config-map db db-uri output-dir)]
     (binding [config/config config-map]
-      (let [schema (unify/db->unify-schema db)]
+      (let [schema (unify/db->unify-schema db)
+            result-path (str (:output-path config-map) "index.html")]
         #_(output/write-schema schema (config/output-path "alzabo-schema.edn"))
         (html/schema->html schema)
-        {:status 200 :body (str "Generated new schema at: "
-                                (:name config-map) "/" (:version config-map)
-                                "/index.html")}))))
+        (println "Schema generated for " (:name config-map)
+                 " version " (:version config-map))
+        (println "Point browser to file: " result-path
+                 " e.g. with: " \newline)
+        (println "open" result-path)))))
 
 (defn usage [options-summary]
   (->> ["This is my program. There are many like it, but this one is mine."
@@ -96,4 +102,4 @@
       (exit (if ok? 0 1) exit-message))))
 
 (comment
-  (render-from-db-uri "datomic:ddb://us-east-1/data-commons-dev-1/h37001"))
+  (render-from-db-uri "datomic:ddb://us-east-1/data-commons-dev-1/h37001" "test-render"))
