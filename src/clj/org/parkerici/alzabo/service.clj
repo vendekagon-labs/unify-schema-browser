@@ -18,6 +18,7 @@
   [db-name]
   (let [db-set (set (query/list-dbs))]
     (db-set db-name)))
+
 (defn build-config-map
   [db db-uri]
   (let [version-info (query/version-info db)
