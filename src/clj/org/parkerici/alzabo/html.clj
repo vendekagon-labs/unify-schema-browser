@@ -1,15 +1,15 @@
 (ns org.parkerici.alzabo.html
-  (:require [org.parkerici.alzabo.schema :as schema]
-            [org.parkerici.alzabo.config :as config]
-            [org.parkerici.multitool.core :as u]
-            [clojure.string :as s]
+  (:require [clojure.java.io :as io]
+            [clojure.java.shell :as shell]
             [clojure.pprint :as pp]
+            [clojure.string :as s]
             [me.raynes.fs :as fs]
-            [clojure.java.io :as io]
-            [clojure.java.shell :as shell])
-  (:import [java.nio.file Files Path LinkOption]
-           [java.nio.file.attribute FileAttribute])
-  (:use [hiccup.core]))
+            [org.parkerici.alzabo.config :as config]
+            [org.parkerici.alzabo.schema :as schema]
+            [org.parkerici.vendored.multitool :as u])
+  (:use [hiccup.core])
+  (:import (java.nio.file Files LinkOption)
+           (java.nio.file.attribute FileAttribute)))
 
 (defn- kind-url
   [kind]

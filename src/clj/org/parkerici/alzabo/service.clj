@@ -1,11 +1,11 @@
 (ns org.parkerici.alzabo.service
   (:require [io.pedestal.http :as http]
+            [io.pedestal.http.route :as route]
             [org.parkerici.alzabo.config :as config]
             [org.parkerici.alzabo.html :as html]
-            [org.parkerici.alzabo.unify.query :as query]
-            [org.parkerici.alzabo.unify :as unify]
             [org.parkerici.alzabo.output :as output]
-            [io.pedestal.http.route :as route]))
+            [org.parkerici.alzabo.unify :as unify]
+            [org.parkerici.alzabo.unify.query :as query]))
 
 (defn service-port []
   (when-let [port-str (System/getenv "SERVICE_PORT")]
@@ -18,19 +18,20 @@
   [db-name]
   (let [db-set (set (query/list-dbs))]
     (db-set db-name)))
+
 (defn build-config-map
   [db db-uri]
   (let [version-info (query/version-info db)
         version (:unify.schema/version version-info)
         schema-name (-> version-info :unify.schema/name name)]
-    {:source :unify-db
-     :db-uri db-uri
-     :output-path (str "resources/public/" schema-name "/" version "/")
-     :edge-labels? false
-     :reference? true
-     :name schema-name
-     :version version
-     :main-color "lightsteelblue"
+    {:source          :unify-db
+     :db-uri          db-uri
+     :output-path     (str "resources/public/" schema-name "/" version "/")
+     :edge-labels?    false
+     :reference?      true
+     :name            schema-name
+     :version         version
+     :main-color      "lightsteelblue"
      :reference-color "moccasin"}))
 
 (defn render-schema
@@ -57,11 +58,11 @@
 (defn serve-static
   [{:keys [dev host port] :as _opts}]
   (-> (http/create-server
-       {::http/routes routes
-        ::http/type   :jetty
-        ::http/host   (or host "0.0.0.0")
-        ::http/port   (or (service-port) port)
-        ::http/join?  (not dev)
-        ::http/resource-path  "/public"
-        ::http/secure-headers {:content-security-policy-settings {:object-src "none"}}})
+        {::http/routes         routes
+         ::http/type           :jetty
+         ::http/host           (or host "0.0.0.0")
+         ::http/port           (or (service-port) port)
+         ::http/join?          (not dev)
+         ::http/resource-path  "/public"
+         ::http/secure-headers {:content-security-policy-settings {:object-src "none"}}})
       (http/start)))

@@ -1,10 +1,10 @@
 (ns org.parkerici.alzabo.unify
-  (:require [clojure.set :as set]
-            [clojure.edn :as edn]
+  (:require [clojure.edn :as edn]
             [clojure.java.io :as io]
+            [clojure.set :as set]
             [org.parkerici.alzabo.schema :as schema]
             [org.parkerici.alzabo.unify.query :as query]
-            [org.parkerici.multitool.core :as u]))
+            [org.parkerici.vendored.multitool :as u]))
 
 
 (defn read-edn [file]
@@ -19,12 +19,12 @@
 
 
 (def special-case-enums
-  {[:clinical-observation :dfi-reason] :clinical-observation.event-reason
-   [:clinical-observation :pfs-reason] :clinical-observation.event-reason
-   [:clinical-observation :ttf-reason] :clinical-observation.event-reason
-   [:clinical-observation :os-reason] :clinical-observation.event-reason
+  {[:clinical-observation :dfi-reason]     :clinical-observation.event-reason
+   [:clinical-observation :pfs-reason]     :clinical-observation.event-reason
+   [:clinical-observation :ttf-reason]     :clinical-observation.event-reason
+   [:clinical-observation :os-reason]      :clinical-observation.event-reason
    [:measurement-matrix :measurement-type] :measurement/*
-   [:variant :feature-type] :variant.feature})
+   [:variant :feature-type]                :variant.feature})
 
 
 (defn kind-fields
@@ -57,7 +57,7 @@
           (get special-case-enums [kind field])
           (get special-case-enums [kind field])
           :else (do (println "No enum found:" {:unify.kind kind :field field})
-                   :ref))))
+                    :ref))))
 
 (defn annotated-field
   "Given a Unify kind definition and Datomic attribute definition fields,
@@ -70,25 +70,25 @@
         real-type (cond (= :ref bare-type)
                         (lookup-enum kind field enums)
                         (= :tuple bare-type)
-                        (cond (get info :db/tupleType) ;homogenous tuple
+                        (cond (get info :db/tupleType)      ;homogenous tuple
                               {:* (ns->key (get info :db/tupleType))}
-                              (get info :db/tupleTypes) ;heterogenous tuple
+                              (get info :db/tupleTypes)     ;heterogenous tuple
                               (mapv ns->key (or (get info :unify.ref/tuple-types) ;metamodel-level types
                                                 (get info :db/tupleTypes)))
                               true
                               (throw (ex-info (str "Couldn't determine tuple type for kind: " kind
                                                    " and field " field)
                                               {:kind kind :field field})))
-                          
+
                         true
                         bare-type)]
     [field
-     {:type real-type
+     {:type        real-type
       :cardinality (ns->key (get info :db/cardinality))
-      :unique (ns->key (get info :db/unique))
-      :component (get info :db/isComponent)
-      :doc (get info :db/doc)
-      :attribute namespaced}]))
+      :unique      (ns->key (get info :db/unique))
+      :component   (get info :db/isComponent)
+      :doc         (get info :db/doc)
+      :attribute   namespaced}]))
 
 (defn process-enums
   [enum-data]
@@ -124,23 +124,23 @@
                           :reference? (:unify.kind/ref-data ent-def)})
                        entity-meta)
         kinds (into {}
-                (map (fn [kind kind-def]
-                       (let [basic-att-fields (map #(ns->key (:db/ident %))
-                                                   (kind-fields kind schema-data))
-                             ref-fields (map (comp ns->key :db/id)
-                                             (kind-refs kind reference-meta))
-                             all-fields (set/union (set basic-att-fields)
-                                                   (set ref-fields))
-                             annotated-fields (into {}
-                                                    (map #(annotated-field kind % field-index enums)
-                                                         all-fields))]
-                         [kind (assoc kind-def :fields annotated-fields)]))
-                     kinds* kind-defs))]
+                    (map (fn [kind kind-def]
+                           (let [basic-att-fields (map #(ns->key (:db/ident %))
+                                                       (kind-fields kind schema-data))
+                                 ref-fields (map (comp ns->key :db/id)
+                                                 (kind-refs kind reference-meta))
+                                 all-fields (set/union (set basic-att-fields)
+                                                       (set ref-fields))
+                                 annotated-fields (into {}
+                                                        (map #(annotated-field kind % field-index enums)
+                                                             all-fields))]
+                             [kind (assoc kind-def :fields annotated-fields)]))
+                         kinds* kind-defs))]
     (u/clean-walk
-      {:title title
+      {:title   title
        :version version
-       :kinds kinds
-       :enums enums})))
+       :kinds   kinds
+       :enums   enums})))
 
 (defn parse-schema-files
   "Given a Unify schema directory, parses the schema, metamodel, and enum file contents
@@ -172,23 +172,23 @@
         entity-metadata
         (for [[kind {:keys [unique-id parent label]}] kinds]
           (u/clean-map
-           {:unify.kind/name kind
-            :unify.kind/need-uid unique-id
-            :unify.kind/parent parent
-            :unify.kind/context-id label}))
+            {:unify.kind/name       kind
+             :unify.kind/need-uid   unique-id
+             :unify.kind/parent     parent
+             :unify.kind/context-id label}))
 
         reference-meta-attributes
         (filter
-         identity
-         (mapcat (fn [[kind {:keys [fields]}]]
-                   (map (fn [[field {:keys [type]}]]
-                         (when (not (get schema/primitives type))
-                           {:db/id (keyword (name kind) (name field))
-                            :unify.ref/from kind
-                            :unify.ref/to type}))
+          identity
+          (mapcat (fn [[kind {:keys [fields]}]]
+                    (map (fn [[field {:keys [type]}]]
+                            (when (not (get schema/primitives type))
+                                {:db/id          (keyword (name kind) (name field))}
+                                 :unify.ref/from kind
+                                 :unify.ref/to   type))
 
-                       fields))
-                kinds))]
+                          fields))
+                   kinds))]
 
     [metamodel-fixed entity-metadata reference-meta-attributes]))
           
