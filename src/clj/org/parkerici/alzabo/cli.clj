@@ -39,7 +39,7 @@
         (println "Schema generated for " (:name config-map)
                  " version " (:version config-map))
         (println "Point browser to file: " result-path
-                 " e.g. with: " \newline)
+                 " e.g. with: ")
         (println "open" result-path)))))
 
 (defn render-from-schema-dir [schema-dir output-dir]
@@ -48,14 +48,32 @@
     (unify-schema/apply-schema schema-dir datomic-uri)
     (render-from-db-uri datomic-uri output-dir)))
 
-(defn -main [[data-src]]
+(defn -main [& args]
   ;; check datomic: prefix, if so do that
-  ;; check directory exists or can be created, if so do that
+  ;; check schema directory exists, if so do that
   ;; otherwise error
-  (if (str/starts-with? data-src "datomic:")
-    :yes
-    :no))
+  (let [[data-src output-dir] args]
+    (cond
+      (or (= data-src "--help")
+          (= data-src "-h"))
+      (do (println "Call with args:")
+          (println "$data-src $output-dir")
+          (println "where $data-src is a datomic-uri OR Unify schema directory,")
+          (println "and $output-dir is the root dir into which name/version/index.html & supporting resources will be written.")
+          (println)
+          (println "Examples:")
+          (println "./render-schema datomic:dev://localhost/my-db path/to/schema-html")
+          (println "./render-schema schema/ rendered-schemas/"))
+
+      (str/starts-with? data-src "datomic:")
+      (render-from-db-uri data-src output-dir)
+
+      :else
+      (render-from-schema-dir data-src output-dir))))
 
 (comment
   (render-from-db-uri "datomic:ddb://us-east-1/data-commons-dev-1/h37001" "test-render")
-  (render-from-schema-dir "/Users/benjaminkamphaus/code/unify/test/resources/systems/candel/template-dataset/schema" "test-render"))
+  (render-from-schema-dir "/Users/benjaminkamphaus/code/unify/test/resources/systems/candel/template-dataset/schema" "test-render")
+  (-main "-h")
+  (-main "datomic:ddb://us-east-1/data-commons-dev-1/h37001" "test-render")
+  (-main "/Users/benjaminkamphaus/code/unify/test/resources/systems/candel/template-dataset/schema" "test-render"))
