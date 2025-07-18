@@ -64,13 +64,20 @@
           (println)
           (println "Examples:")
           (println "./render-schema datomic:dev://localhost/my-db path/to/schema-html")
-          (println "./render-schema schema/ rendered-schemas/"))
+          (println "./render-schema schema/ rendered-schemas/")
+          (System/exit 0))
 
       (str/starts-with? data-src "datomic:")
-      (render-from-db-uri data-src output-dir)
+      (do (render-from-db-uri data-src output-dir)
+          (System/exit 0))
+
+      (and data-src output-dir)
+      (do (render-from-schema-dir data-src output-dir)
+          (System/exit 0))
 
       :else
-      (render-from-schema-dir data-src output-dir))))
+      (do (println "Must provide two positional args: data source (datomic uri or schema directory) and output root directory.")
+          (System/exit 1)))))
 
 (comment
   (render-from-db-uri "datomic:ddb://us-east-1/data-commons-dev-1/h37001" "test-render")
