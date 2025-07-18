@@ -6,7 +6,8 @@
             [org.parkerici.alzabo.unify :as unify]
             [org.parkerici.alzabo.unify.schema-directory :as unify-schema]
             [org.parkerici.alzabo.unify.query :as query]
-            [org.parkerici.alzabo.html :as html]))
+            [org.parkerici.alzabo.html :as html])
+  (:gen-class))
 
 
 (defn build-config-map
