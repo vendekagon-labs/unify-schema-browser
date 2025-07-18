@@ -1,0 +1,41 @@
+{:paths ["src/cljc" "src/clj" "src/cljs" "resources"]
+
+ :deps
+ {org.clojure/clojure {:mvn/version "1.11.1"}
+  org.clojure/tools.cli {:mvn/version "1.1.230"}
+  com.datomic/peer {:mvn/version "1.0.7075"}
+  com.amazonaws/aws-java-sdk-dynamodb {:mvn/version "1.12.761"}
+  org.postgresql/postgresql {:mvn/version "42.7.1"}
+  org.slf4j/slf4j-simple {:mvn/version "1.7.30"}
+  hiccup/hiccup {:mvn/version "1.0.5"}
+  io.pedestal/pedestal.service {:mvn/version "0.6.2"}
+  io.pedestal/pedestal.jetty {:mvn/version "0.6.2"}
+  me.raynes/fs {:mvn/version "1.4.6"}
+  org.clojure/clojurescript {:mvn/version "1.10.520"}
+  org.parkerici/multitool {:mvn/version "0.0.15"}
+  reagent/reagent {:mvn/version "0.8.1"}
+  re-frame/re-frame {:mvn/version "0.10.6"}}
+
+ :aliases
+ {:dev
+  {:extra-deps
+   {cider/piggieback {:mvn/version "0.3.10"}
+    day8.re-frame/re-frame-10x {:mvn/version "0.3.3"}
+    figwheel-sidecar {:mvn/version "0.5.16"}}
+   :extra-paths ["test/cljc" "test/clj" "test/cljs"]}
+
+  :prod
+  {:extra-deps
+   {day8.re-frame/tracing-stubs {:mvn/version "0.5.1"}}}
+
+  :cljsbuild
+  {:extra-deps
+   {lein-cljsbuild/lein-cljsbuild {:mvn/version "1.1.7"}
+    lein-figwheel/lein-figwheel {:mvn/version "0.5.16"}}}
+
+  :launch
+  {:exec-fn user.launch/launch
+   :exec-args {}}
+
+  :run
+  {:main-opts ["-m" "org.parkerici.alzabo.core"]}}}

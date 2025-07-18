@@ -3,6 +3,8 @@
   :url "http://github.com/ParkerICI/alzabo"
   :dependencies [;; Clojure
                  [org.clojure/clojure "1.11.1"]
+                 [org.clojure/tools.cli "1.1.230"]
+                 [com.amazonaws/aws-java-sdk-dynamodb "1.12.761"]
                  [com.datomic/peer "1.0.7075"]
                  [org.postgresql/postgresql "42.7.1"]
                  [org.slf4j/slf4j-simple "1.7.30"]
