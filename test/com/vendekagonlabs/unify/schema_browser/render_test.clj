@@ -75,6 +75,10 @@
       (doseq [f files]
         (is (not (str/includes? (str/lower-case (slurp f)) "alzabo")) (.getName f))))
 
+    (testing "light by default; dark mode is an opt-in toggle, not the OS setting"
+      (is (str/includes? (slurp (io/file dir "index.html")) "id=\"theme-toggle\""))
+      (is (not (str/includes? (slurp (io/file dir "assets" "schema-browser.css")) "prefers-color-scheme"))))
+
     (testing "unbranded pages have no brand markup"
       (is (not (str/includes? (slurp (io/file dir "index.html")) "class=\"brand"))))
 

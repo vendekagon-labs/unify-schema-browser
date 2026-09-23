@@ -68,7 +68,16 @@
   (when (or accent accent-dark)
     [:style (h/raw (str (when accent (str ":root{--accent:" accent ";}"))
                         (when accent-dark
-                          (str "@media (prefers-color-scheme: dark){:root{--accent:" accent-dark ";}}"))))]))
+                          (str ":root[data-theme=\"dark\"]{--accent:" accent-dark ";}"))))]))
+
+;; Applies a saved dark-mode choice before first paint (no flash of light).
+(def ^:private theme-boot
+  "try{if(localStorage.getItem('schema-browser-theme')==='dark')document.documentElement.dataset.theme='dark'}catch(e){}")
+
+(def ^:private theme-toggle
+  [:button#theme-toggle.theme-toggle {:type "button" :title "Toggle dark mode" :aria-label "Toggle dark mode"}
+   (h/raw (str "<svg class=\"icon-moon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z\"/></svg>"
+               "<svg class=\"icon-sun\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"4\"/><path d=\"M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4\"/></svg>"))])
 
 (defn- header [{:keys [schema brand]}]
   (let [{:keys [title version]} schema
@@ -95,7 +104,8 @@
                        :spellcheck   "false"
                        :aria-label   "Search schema"}]
        [:kbd.search-key "/"]
-       [:div#search-results.search-results {:role "listbox" :hidden true}]]]]))
+       [:div#search-results.search-results {:role "listbox" :hidden true}]]
+      theme-toggle]]))
 
 (defn- footer [{:keys [schema brand generated-at renderer-version]}]
   [:footer.footer
@@ -120,6 +130,7 @@
         [:meta {:name "viewport" :content "width=device-width, initial-scale=1"}]
         [:meta {:name "generator" :content (str "Unify Schema Browser " (:renderer-version ctx))}]
         [:title title]
+        [:script (h/raw theme-boot)]
         (when-let [logo (get-in ctx [:brand :logo-asset])]
           (when (str/ends-with? logo ".svg")
             [:link {:rel "icon" :href (str "assets/" logo)}]))

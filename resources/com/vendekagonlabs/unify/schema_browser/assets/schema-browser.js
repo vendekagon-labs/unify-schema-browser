@@ -224,7 +224,24 @@
     });
   }
 
-  function init() { initSearch(); initGraph(); }
+  // ---------- theme ----------
+
+  // light by default; dark is opt-in and remembered per browser
+  function initTheme() {
+    var btn = document.getElementById("theme-toggle");
+    if (!btn) return;
+    var root = document.documentElement;
+    function sync() { btn.setAttribute("aria-pressed", root.dataset.theme === "dark" ? "true" : "false"); }
+    sync();
+    btn.addEventListener("click", function () {
+      var dark = root.dataset.theme !== "dark";
+      if (dark) root.dataset.theme = "dark"; else delete root.dataset.theme;
+      try { localStorage.setItem("schema-browser-theme", dark ? "dark" : "light"); } catch (e) {}
+      sync();
+    });
+  }
+
+  function init() { initTheme(); initSearch(); initGraph(); }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();
 })();

@@ -30,8 +30,8 @@
   --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
+/* dark theme is opt-in (header toggle sets <html data-theme="dark">) */
+:root[data-theme="dark"] {
     color-scheme: dark;
     --bg: #0f1216;
     --surface: #171b21;
@@ -55,7 +55,6 @@
     --enum-ink: #c7b5f0;
     --prim-ink: #b4bbc5;
     --shadow: 0 1px 2px rgba(0, 0, 0, .4);
-  }
 }
 
 * { box-sizing: border-box; }
@@ -117,9 +116,18 @@ h3 { font-size: .95rem; margin: 1.2rem 0 .6rem; color: var(--ink-2); font-weight
   color: var(--ink-2);
 }
 
-@media (prefers-color-scheme: dark) {
-  .brand-logo.plate { background: #fff; border-radius: 7px; padding: 3px 7px; height: 38px; }
+[data-theme="dark"] .brand-logo.plate { background: #fff; border-radius: 7px; padding: 3px 7px; height: 38px; }
+
+.theme-toggle {
+  flex: none; display: inline-flex; align-items: center; justify-content: center;
+  width: 2.2rem; height: 2.2rem; border-radius: 8px; cursor: pointer;
+  color: var(--ink-2); background: var(--surface-2); border: 1px solid var(--line);
 }
+.theme-toggle:hover { color: var(--accent); border-color: var(--accent); }
+.theme-toggle svg { width: 18px; height: 18px; }
+.theme-toggle .icon-sun { display: none; }
+[data-theme="dark"] .theme-toggle .icon-sun { display: block; }
+[data-theme="dark"] .theme-toggle .icon-moon { display: none; }
 
 /* -- search -- */
 
@@ -223,6 +231,7 @@ h3 { font-size: .95rem; margin: 1.2rem 0 .6rem; color: var(--ink-2); font-weight
 #schema-graph .edge.parent polygon, #schema-graph .edge.parent polyline { stroke: var(--edge-parent); fill: var(--edge-parent); }
 #schema-graph .node, #schema-graph .edge { transition: opacity .12s; }
 #schema-graph .node a { cursor: pointer; }
+#schema-graph a, #schema-graph a:hover { text-decoration: none; }
 #schema-graph .node:hover path, #schema-graph .node:hover polygon { stroke-width: 2; }
 #schema-graph.focusing .node, #schema-graph.focusing .edge { opacity: .14; }
 #schema-graph.focusing .node.hl, #schema-graph.focusing .edge.hl { opacity: 1; }
