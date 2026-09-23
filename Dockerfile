@@ -1,12 +1,9 @@
-FROM clojure:lein
-RUN apt-get update && apt-get install --yes graphviz
-COPY src/ /alzabo/src/
-COPY resources/ /alzabo/resources/
-COPY project.clj /alzabo/
-COPY test/resources/pretense/resources/schema/ /schema
-WORKDIR /alzabo
-RUN lein deps
-
-ENV DATOMIC_URI="datomic:dev://host.docker.internal:4334/unify-example"
-ENTRYPOINT lein run
-
+FROM clojure:temurin-21-tools-deps
+RUN apt-get update && apt-get install --yes graphviz && rm -rf /var/lib/apt/lists/*
+WORKDIR /app
+COPY deps.edn /app/
+RUN clojure -P -M:service
+COPY src/ /app/src/
+COPY resources/ /app/resources/
+EXPOSE 8999
+ENTRYPOINT ["clojure", "-M:service"]

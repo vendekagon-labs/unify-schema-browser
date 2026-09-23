@@ -1,2 +1,5 @@
 #!/bin/bash
-java -cp unify-schema-browser.jar clojure.main -m org.parkerici.alzabo.cli $@
+# Render a Unify schema to a static schema browser site.
+# Usage: render-schema [--brand brand.edn] <schema-dir|datomic-uri> <out-dir>
+# Requires java and graphviz (dot).
+exec java -jar "$(dirname "$0")/unify-schema-browser.jar" "$@"

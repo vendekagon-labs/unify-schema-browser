@@ -1,9 +1,0 @@
-{:source :unify
- :unify-path "test/resources/pretense"
- :output-path "target/candel/{version}/" 
- :reference? true
- :main-color "moccasin"
- :reference-color "lightsteelblue"
- :dev? false}
-
-
