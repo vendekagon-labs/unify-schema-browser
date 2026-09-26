@@ -1,0 +1,13 @@
+Unify Schema Browser
+Copyright 2023-2026 Vendekagon Labs, LLC.
+
+This product is derived from Alzabo (https://github.com/CANDELbio/alzabo),
+originally written by Mike Travers.
+Copyright Parker Institute for Cancer Immunotherapy.
+Alzabo is licensed under the Apache License, Version 2.0.
+
+Modifications and additions by Vendekagon Labs, LLC (2023 onward), including
+the Unify schema integration, the renamed com.vendekagonlabs.unify.schema-browser
+namespaces, the rendering pipeline, page design, client-side search and graph
+interaction, and branding support, are likewise licensed under the Apache
+License, Version 2.0.

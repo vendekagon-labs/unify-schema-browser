@@ -1,6 +1,4 @@
 /resources/public/schema
-/resources/public/js
-/resources/public/candel
 /target
 /classes
 /checkouts
@@ -15,3 +13,5 @@ pom.xml.asc
 /test-render
 /.cpcache
 /package/*.jar
+*.iml
+/resources/public/

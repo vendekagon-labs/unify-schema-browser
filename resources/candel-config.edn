@@ -1,7 +1,0 @@
-{:source :unify
- :unify-path "unify"
- :output-path "resources/public/schema/{version}/" 
- :edge-labels? false
- :reference? true
- :main-color "lightsteelblue"
- :reference-color "moccasin"}
